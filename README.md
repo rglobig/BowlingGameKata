@@ -1,5 +1,5 @@
 # Bowling Game Kata
-
+[![dotnetbuild](https://github.com/rglobig/BowlingGameKata/actions/workflows/dotnet.yml/badge.svg)](https://github.com/rglobig/BowlingGameKata/actions/workflows/dotnet.yml)
 ## Scoring Bowling
 
 ![score_picture](score_picture.png)
