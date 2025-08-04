@@ -1,9 +1,9 @@
 namespace Code;
 
-public sealed class GameIsOverException : Exception;
+internal sealed class GameIsOverException : Exception;
 
-public sealed class GameIsNotOverException : Exception;
+internal sealed class GameIsNotOverException : Exception;
 
-public sealed class LastRoundIsNotSpareException : Exception;
+internal sealed class LastRoundIsNotSpareException : Exception;
 
-public sealed class LastRoundIsNotStrikeException : Exception;
+internal sealed class LastRoundIsNotStrikeException : Exception;
