@@ -28,7 +28,7 @@ public class GameTests
             .PlayRound(_default)
             .Finish()
             .CompleteWithoutExtraRound()
-            .GetScore();
+            .CalculateScore();
         Assert.Equal(_default.Sum * 8 + (_spare.Sum + _default.First) + (_strike.Sum + _default.Sum), score);
     }
 
@@ -37,7 +37,7 @@ public class GameTests
     {
         var extraRoundGame = _game.Finish();
         var completedGame = extraRoundGame.CompleteWithoutExtraRound();
-        Assert.Equal(0, completedGame.GetScore());
+        Assert.Equal(0, completedGame.CalculateScore());
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class GameTests
     {
         PlayAllRounds(_zero);
         var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(0, completedGame.GetScore());
+        Assert.Equal(0, completedGame.CalculateScore());
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class GameTests
     {
         PlayAllRounds(new Round(1, 0));
         var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(Game.MaxRounds * 1, completedGame.GetScore());
+        Assert.Equal(Game.MaxRounds * 1, completedGame.CalculateScore());
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class GameTests
         _game.PlayRound(_spare);
         _game.PlayRound(_default);
         var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(_spare.Sum + _default.First + _default.Sum, completedGame.GetScore());
+        Assert.Equal(_spare.Sum + _default.First + _default.Sum, completedGame.CalculateScore());
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class GameTests
         _game.PlayRound(_strike);
         _game.PlayRound(_default);
         var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(_strike.Sum + _default.Sum + _default.Sum, completedGame.GetScore());
+        Assert.Equal(_strike.Sum + _default.Sum + _default.Sum, completedGame.CalculateScore());
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public class GameTests
     {
         var score = _game.PlayRound(_spare)
             .Finish()
-            .CompleteWithoutExtraRound().GetScore();
+            .CompleteWithoutExtraRound().CalculateScore();
         Assert.Equal(_spare.Sum, score);
     }
 
@@ -95,7 +95,7 @@ public class GameTests
     {
         var score = _game.PlayRound(_strike)
             .Finish()
-            .CompleteWithoutExtraRound().GetScore();
+            .CompleteWithoutExtraRound().CalculateScore();
         Assert.Equal(_spare.Sum, score);
     }
 
@@ -107,7 +107,7 @@ public class GameTests
         var extraRoundGame = _game.Finish();
         var completedGame = extraRoundGame.PlayExtraStrikeRound(_extraStrikeRound);
 
-        Assert.Equal(_strike.Sum + _extraStrikeRound.Sum * 2, completedGame.GetScore());
+        Assert.Equal(_strike.Sum + _extraStrikeRound.Sum * 2, completedGame.CalculateScore());
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class GameTests
         var extraRoundGame = _game.Finish();
         var completedGame = extraRoundGame.PlayExtraSpareRound(_extraSpareRound);
 
-        Assert.Equal(_spare.Sum + _extraSpareRound.Sum * 2, completedGame.GetScore());
+        Assert.Equal(_spare.Sum + _extraSpareRound.Sum * 2, completedGame.CalculateScore());
     }
 
     [Fact]

@@ -29,14 +29,14 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
         return this;
     }
 
-    public int GetScore()
+    public int CalculateScore()
     {
         var score = 0;
         for (var i = 0; i < _rounds.Count; i++)
         {
             score += _rounds[i].Sum;
 
-            if (!HasNextRound(i)) continue;
+            if (IsLastRound(i)) continue;
 
             if (_rounds[i].IsStrike) score += NextRound(i).Sum;
             else if (_rounds[i].IsSpare) score += NextRound(i).First;
@@ -48,7 +48,7 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
     public ICompletedGame PlayExtraSpareRound(ExtraSpareRound extraSpareRound)
     {
         ValidateIfGameIsFinished();
-        if (!_rounds[^1].IsSpare) throw new LastRoundIsNotSpareException();
+        if (!GetLastRound().IsSpare) throw new LastRoundIsNotSpareException();
 
         _rounds.Add(extraSpareRound);
         return this;
@@ -62,7 +62,7 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
     public ICompletedGame PlayExtraStrikeRound(ExtraStrikeRound extraStrikeRound)
     {
         ValidateIfGameIsFinished();
-        if (!_rounds[^1].IsStrike) throw new LastRoundIsNotStrikeException();
+        if (!GetLastRound().IsStrike) throw new LastRoundIsNotStrikeException();
 
         _rounds.Add(extraStrikeRound);
         return this;
@@ -79,9 +79,14 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
         }
     }
 
-    private bool HasNextRound(int index)
+    private bool IsLastRound(int index)
     {
-        return index + 1 < _rounds.Count;
+        return index + 1 == _rounds.Count;
+    }
+    
+    private Round GetLastRound()
+    {
+        return _rounds[^1];
     }
 
     private Round NextRound(int index)
