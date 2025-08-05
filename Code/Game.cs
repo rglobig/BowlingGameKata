@@ -1,17 +1,32 @@
 namespace Code;
 
-internal class Game
+internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
 {
     public const int MaxRounds = 10;
 
     private readonly List<Round> _rounds = [];
 
-    public void PlayRound(Round round)
+    private Game()
+    {
+    }
+
+    public static IPlayableGame CreateNew()
+    {
+        return new Game();
+    }
+
+    public IPlayableGame PlayRound(Round round)
     {
         if (_rounds.Count >= MaxRounds)
             throw new GameIsOverException();
 
         _rounds.Add(round);
+        return this;
+    }
+
+    public IExtraRoundGame Finish()
+    {
+        return this;
     }
 
     public int GetScore()
@@ -30,23 +45,30 @@ internal class Game
         return score;
     }
 
-    public void PlayExtraSpareRound(ExtraSpareRound extraSpareRound)
+    public ICompletedGame PlayExtraSpareRound(ExtraSpareRound extraSpareRound)
     {
-        ValidateExtraRoundIsPlayable();
+        ValidateIfGameIsFinished();
         if (!_rounds[^1].IsSpare) throw new LastRoundIsNotSpareException();
 
         _rounds.Add(extraSpareRound);
+        return this;
     }
 
-    public void PlayExtraStrikeRound(ExtraStrikeRound extraStrikeRound)
+    public ICompletedGame CompleteWithoutExtraRound()
     {
-        ValidateExtraRoundIsPlayable();
+        return this;
+    }
+
+    public ICompletedGame PlayExtraStrikeRound(ExtraStrikeRound extraStrikeRound)
+    {
+        ValidateIfGameIsFinished();
         if (!_rounds[^1].IsStrike) throw new LastRoundIsNotStrikeException();
 
         _rounds.Add(extraStrikeRound);
+        return this;
     }
 
-    private void ValidateExtraRoundIsPlayable()
+    private void ValidateIfGameIsFinished()
     {
         switch (_rounds.Count)
         {
