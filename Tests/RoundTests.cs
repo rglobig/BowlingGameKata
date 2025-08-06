@@ -4,8 +4,9 @@ namespace Tests;
 
 public class RoundTests
 {
-    private readonly Round _spare = new(5, 5);
-    private readonly Round _strike = new(10, 0);
+    private readonly Round _spare = new(new Roll(5), new Roll(5));
+    private readonly Round _default = new(new Roll(3), new Roll(4));
+    private readonly StrikeRound _strike = new();
 
     [Theory]
     [InlineData(0, 0)]
@@ -14,7 +15,7 @@ public class RoundTests
     [InlineData(10, 0)]
     public void Sum_Of_Round_Is_Correct(int first, int second)
     {
-        var round = new Round(first, second);
+        var round = new Round(new Roll(first), new Roll(second));
         Assert.Equal(first + second, round.Sum);
     }
 
@@ -33,8 +34,7 @@ public class RoundTests
     [Fact]
     public void Round_Is_Not_Spare_If_First_And_Second_Roll_Sum_Is_Less_Than_MaxPins()
     {
-        var round = new Round(3, 4);
-        Assert.False(round.IsSpare);
+        Assert.False(_default.IsSpare);
     }
 
     [Fact]
@@ -46,38 +46,13 @@ public class RoundTests
     [Fact]
     public void Round_Is_Not_Strike_If_First_Roll_Is_Less_Than_MaxPins()
     {
-        var round = new Round(3, 4);
-        Assert.False(round.IsStrike);
-    }
-
-    [Fact]
-    public void First_Throw_Cant_Be_Negative_Throw_ArgumentOutOfRangeException()
-    {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new Round(-1, 0));
-    }
-
-    [Fact]
-    public void Second_Throw_Cant_Be_Negative_Throw_ArgumentOutOfRangeException()
-    {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new Round(0, -1));
-    }
-
-    [Fact]
-    public void First_Throw_Cant_Be_Greater_Than_MaxPins_Throw_ArgumentOutOfRangeException()
-    {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new Round(Round.MaxPins + 1, 0));
-    }
-
-    [Fact]
-    public void Second_Throw_Cant_Be_Greater_Than_MaxPins_Throw_ArgumentOutOfRangeException()
-    {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new Round(0, Round.MaxPins + 1));
+        Assert.False(_default.IsStrike);
     }
 
     [Fact]
     public void Sum_Of_Round_Cant_Be_Greater_Than_MaxPins_Throw_ArgumentOutOfRangeException()
     {
-        var ex = Assert.Throws<ArgumentException>(() => new Round(Round.MaxPins - 1, 2));
-        Assert.Equal(ex.Message, $"Sum of first and second throws cannot be greater than {Round.MaxPins}");
+        var ex = Assert.Throws<ArgumentException>(() => new Round(new Roll(Game.MaxPins - 1), new Roll(2)));
+        Assert.Equal(ex.Message, $"Sum of first and second throws cannot be greater than {Game.MaxPins}");
     }
 }
