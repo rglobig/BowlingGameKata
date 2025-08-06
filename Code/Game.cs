@@ -4,8 +4,8 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
 {
     public const int MaxRounds = 10;
     public const int MaxPins = 10;
-    private const int ExtraScoreRollsForSpare = 1;
-    private const int ExtraScoreRollsForStrike = 2;
+    public const int ExtraScoreRollsForSpare = 1;
+    public const int ExtraScoreRollsForStrike = 2;
 
     private readonly List<Round> _rounds = [];
     private readonly List<Roll> _extraRolls = [];

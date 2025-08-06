@@ -28,7 +28,9 @@ public class GameTests
             .Finish()
             .Complete()
             .CalculateScore();
-        Assert.Equal(_default.PinsHit * 8 + (_spare.PinsHit + _default.First.PinsHit) + (_strike.PinsHit + _default.PinsHit), score);
+        Assert.Equal(
+            _default.PinsHit * 8 + (_spare.PinsHit + _default.First.PinsHit) + (_strike.PinsHit + _default.PinsHit),
+            score);
     }
 
     [Fact]
@@ -38,11 +40,12 @@ public class GameTests
         {
             _game.PlayRound(_strike);
         }
-
-        var score = _game.Finish()
-            .PlayExtraRoll(_strikeRoll)
-            .PlayExtraRoll(_strikeRoll)
-            .Complete()
+        var extraRoundGame = _game.Finish();
+        for (var i = 0; i < Game.ExtraScoreRollsForStrike; i++)
+        {
+            extraRoundGame.PlayExtraRoll(_strikeRoll);
+        }
+        var score = extraRoundGame.Complete()
             .CalculateScore();
 
         Assert.Equal(Game.MaxRounds * Game.MaxPins * 3, score);
@@ -64,63 +67,79 @@ public class GameTests
     [Fact]
     public void Game_WithoutAny_Hit_Pins()
     {
-        PlayAllRounds(_zero);
-        var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(0, completedGame.CalculateScore());
+        var score = PlayAllRounds(_zero)
+            .Finish()
+            .Complete()
+            .CalculateScore();
+        Assert.Equal(0, score);
     }
 
     [Fact]
     public void Game_With_One_Pin_Hit_Each_Round()
     {
         var round = new Round(new Roll(1), new ZeroRoll());
-        PlayAllRounds(round);
-        var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(Game.MaxRounds * round.PinsHit, completedGame.CalculateScore());
+        var score = PlayAllRounds(round)
+            .Finish()
+            .Complete()
+            .CalculateScore();
+        Assert.Equal(Game.MaxRounds * round.PinsHit, score);
     }
 
     [Fact]
     public void Game_With_A_Spare()
     {
-        PlayRounds(_zero, Game.MaxRounds - 2)
+        var score = PlayRounds(_zero, Game.MaxRounds - 2)
             .PlayRound(_spare)
-            .PlayRound(_default);
-        var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(_spare.PinsHit + _default.First.PinsHit + _default.PinsHit, completedGame.CalculateScore());
+            .PlayRound(_default)
+            .Finish()
+            .Complete()
+            .CalculateScore();
+        Assert.Equal(_spare.PinsHit + _default.First.PinsHit * Game.ExtraScoreRollsForSpare + _default.PinsHit, score);
     }
 
     [Fact]
     public void Game_With_A_Final_Spare()
     {
-        var score = PlayRounds(_zero, Game.MaxRounds - 1)
+        var extraRoundGame = PlayRounds(_zero, Game.MaxRounds - 1)
             .PlayRound(_spare)
-            .Finish()
-            .PlayExtraRoll(_defaultRoll)
-            .Complete()
+            .Finish();
+        for (var i = 0; i < Game.ExtraScoreRollsForSpare; i++)
+        {
+            extraRoundGame.PlayExtraRoll(_defaultRoll);
+        }
+        var score = extraRoundGame.Complete()
             .CalculateScore();
-        Assert.Equal(_strike.PinsHit + _defaultRoll.PinsHit, score);
+        Assert.Equal(_strike.PinsHit + _defaultRoll.PinsHit * Game.ExtraScoreRollsForSpare, score);
     }
 
     [Fact]
     public void Game_With_A_Strike()
     {
-        PlayRounds(_zero, Game.MaxRounds - 2)
+        var score = PlayRounds(_zero, Game.MaxRounds - 2)
             .PlayRound(_strike)
-            .PlayRound(_default);
-        var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(_strike.PinsHit + _default.PinsHit + _default.PinsHit, completedGame.CalculateScore());
+            .PlayRound(_default)
+            .Finish()
+            .Complete()
+            .CalculateScore();
+        Assert.Equal(_strike.PinsHit + _default.PinsHit * Game.ExtraScoreRollsForStrike, score);
     }
 
     [Fact]
     public void Game_With_A_Final_Strike()
     {
-        var score = PlayRounds(_zero, Game.MaxRounds - 1)
+        var extraRoundGame = PlayRounds(_zero, Game.MaxRounds - 1)
             .PlayRound(_strike)
-            .Finish()
-            .PlayExtraRoll(_defaultRoll)
-            .PlayExtraRoll(_defaultRoll)
-            .Complete()
+            .Finish();
+
+        for (var i = 0; i < Game.ExtraScoreRollsForStrike; i++)
+        {
+            extraRoundGame.PlayExtraRoll(_defaultRoll);
+        }
+
+        var score = extraRoundGame.Complete()
             .CalculateScore();
-        Assert.Equal(_strike.PinsHit + _defaultRoll.PinsHit * 2, score);
+
+        Assert.Equal(_strike.PinsHit + _defaultRoll.PinsHit * Game.ExtraScoreRollsForStrike, score);
     }
 
     [Fact]
@@ -137,9 +156,13 @@ public class GameTests
     {
         var extraRoundGame = PlayAllRoundsButLeaveLastRound(_zero)
             .PlayRound(_strike)
-            .Finish()
-            .PlayExtraRoll(_defaultRoll)
-            .PlayExtraRoll(_defaultRoll);
+            .Finish();
+
+        for (var i = 0; i < Game.ExtraScoreRollsForStrike; i++)
+        {
+            extraRoundGame.PlayExtraRoll(_defaultRoll);
+        }
+
         Assert.Throws<GameIsOverException>(() => extraRoundGame.PlayExtraRoll(_defaultRoll));
     }
 
@@ -148,15 +171,18 @@ public class GameTests
     {
         var extraRoundGame = PlayAllRoundsButLeaveLastRound(_zero)
             .PlayRound(_spare)
-            .Finish()
-            .PlayExtraRoll(_defaultRoll);
+            .Finish();
+        for (var i = 0; i < Game.ExtraScoreRollsForSpare; i++)
+        {
+            extraRoundGame.PlayExtraRoll(_defaultRoll);
+        }
 
         Assert.Throws<GameIsOverException>(() => extraRoundGame.PlayExtraRoll(_defaultRoll));
     }
 
-    private void PlayAllRounds(Round round)
+    private IPlayableGame PlayAllRounds(Round round)
     {
-        PlayRounds(round, Game.MaxRounds);
+        return PlayRounds(round, Game.MaxRounds);
     }
 
     private IPlayableGame PlayAllRoundsButLeaveLastRound(Round round)
@@ -168,12 +194,5 @@ public class GameTests
     {
         for (var i = 0; i < count; i++) _game.PlayRound(round);
         return _game;
-    }
-
-    private ICompletedGame FinishGameAndCompleteWithoutExtraRound()
-    {
-        var extraRoundGame = _game.Finish();
-        var completedGame = extraRoundGame.Complete();
-        return completedGame;
     }
 }
