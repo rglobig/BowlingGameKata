@@ -15,7 +15,8 @@ public class GameTests
     [Fact]
     public void Play_Regular_Game()
     {
-        var score = _game.PlayRound(_default)
+        var score = _game
+            .PlayRound(_default)
             .PlayRound(_default)
             .PlayRound(_default)
             .PlayRound(_default)
@@ -29,7 +30,9 @@ public class GameTests
             .Complete()
             .CalculateScore();
         Assert.Equal(
-            _default.PinsHit * 8 + (_spare.PinsHit + _default.First.PinsHit) + (_strike.PinsHit + _default.PinsHit),
+            _default.PinsHit * 8 +
+            (_spare.PinsHit + _default.First.PinsHit) +
+            (_strike.PinsHit + _default.PinsHit),
             score);
     }
 
@@ -40,15 +43,19 @@ public class GameTests
         {
             _game.PlayRound(_strike);
         }
+
         var extraRoundGame = _game.Finish();
         for (var i = 0; i < Game.ExtraScoreRollsForStrike; i++)
         {
             extraRoundGame.PlayExtraRoll(_strikeRoll);
         }
+
         var score = extraRoundGame.Complete()
             .CalculateScore();
 
-        Assert.Equal(Game.MaxRounds * Game.MaxPins * 3, score);
+        Assert.Equal(
+            Game.MaxRounds * _strikeRoll.PinsHit +
+            (Game.MaxRounds * _strikeRoll.PinsHit * Game.ExtraScoreRollsForStrike), score);
     }
 
     [Fact]
@@ -107,9 +114,40 @@ public class GameTests
         {
             extraRoundGame.PlayExtraRoll(_defaultRoll);
         }
+
         var score = extraRoundGame.Complete()
             .CalculateScore();
         Assert.Equal(_strike.PinsHit + _defaultRoll.PinsHit * Game.ExtraScoreRollsForSpare, score);
+    }
+    
+    [Fact]
+    public void Game_With_A_Spare_As_Last_Round_Doesnt_Allow_More_Extra_Rolls()
+    {
+        var extraRoundGame = PlayAllRoundsButLeaveLastRound(_zero)
+            .PlayRound(_spare)
+            .Finish();
+        for (var i = 0; i < Game.ExtraScoreRollsForSpare; i++)
+        {
+            extraRoundGame.PlayExtraRoll(_defaultRoll);
+        }
+
+        Assert.Throws<GameIsOverException>(() => extraRoundGame.PlayExtraRoll(_defaultRoll));
+    }
+    
+    [Fact]
+    public void Game_With_A_Spare_As_Last_Round_And_Not_Enough_Extra_Rolls_Throws_Exception()
+    {
+        var extraRoundGame = PlayRounds(_zero, Game.MaxRounds - 1)
+            .PlayRound(_spare)
+            .Finish();
+
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+        for (var i = 0; i < Game.ExtraScoreRollsForSpare - 1; i++)
+        {
+            extraRoundGame.PlayExtraRoll(_defaultRoll);
+        }
+
+        Assert.Throws<GameIsNotOverException>(() => extraRoundGame.Complete());
     }
 
     [Fact]
@@ -167,17 +205,18 @@ public class GameTests
     }
 
     [Fact]
-    public void Game_With_A_Spare_As_Last_Round_Doesnt_Allow_More_Extra_Rolls()
+    public void Game_With_A_Strike_As_Last_Round_And_Not_Enough_Extra_Rolls_Throws_Exception()
     {
-        var extraRoundGame = PlayAllRoundsButLeaveLastRound(_zero)
-            .PlayRound(_spare)
+        var extraRoundGame = PlayRounds(_zero, Game.MaxRounds - 1)
+            .PlayRound(_strike)
             .Finish();
-        for (var i = 0; i < Game.ExtraScoreRollsForSpare; i++)
+
+        for (var i = 0; i < Game.ExtraScoreRollsForStrike - 1; i++)
         {
             extraRoundGame.PlayExtraRoll(_defaultRoll);
         }
 
-        Assert.Throws<GameIsOverException>(() => extraRoundGame.PlayExtraRoll(_defaultRoll));
+        Assert.Throws<GameIsNotOverException>(() => extraRoundGame.Complete());
     }
 
     private IPlayableGame PlayAllRounds(Round round)
