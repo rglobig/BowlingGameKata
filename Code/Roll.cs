@@ -1,6 +1,7 @@
 namespace Code;
 
 internal record StrikeRoll() : Roll(Game.MaxPins);
+internal record ZeroRoll() : Roll(0);
 
 internal record Roll
 {

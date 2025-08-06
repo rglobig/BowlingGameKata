@@ -9,7 +9,7 @@ public class GameTests
     private readonly Round _spare = new(new Roll(5), new Roll(5));
     private readonly StrikeRoll _strikeRoll = new();
     private readonly StrikeRound _strike = new();
-    private readonly Round _zero = new(new Roll(0), new Roll(0));
+    private readonly Round _zero = new(new ZeroRoll(), new ZeroRoll());
     private readonly Roll _defaultRoll = new(2);
 
     [Fact]
@@ -72,7 +72,7 @@ public class GameTests
     [Fact]
     public void Game_With_One_Pin_Hit_Each_Round()
     {
-        PlayAllRounds(new Round(new Roll(1), new Roll(0)));
+        PlayAllRounds(new Round(new Roll(1), new ZeroRoll()));
         var completedGame = FinishGameAndCompleteWithoutExtraRound();
         Assert.Equal(Game.MaxRounds * 1, completedGame.CalculateScore());
     }

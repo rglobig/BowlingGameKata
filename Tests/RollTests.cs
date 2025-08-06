@@ -7,7 +7,7 @@ public class RollTests
     [Fact]
     public void Roll_With_Zero_Pins_Hit_Is_Valid()
     {
-        _ = new Roll(0);
+        _ = new ZeroRoll();
     }
 
     [Fact]

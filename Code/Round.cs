@@ -1,6 +1,6 @@
 namespace Code;
 
-internal record StrikeRound() : Round(new StrikeRoll(), new Roll(0));
+internal record StrikeRound() : Round(new StrikeRoll(), new ZeroRoll());
 
 internal record Round
 {
