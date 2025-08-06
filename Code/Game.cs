@@ -55,7 +55,7 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
         {
             if (new Round(GetRoll(frameIndex), new ZeroRoll()).IsStrike)
             {
-                score += new StrikeRound().Sum;
+                score += new StrikeRound().PinsHit;
                 for (var i = 1; i <= ExtraScoreRollsForStrike; i++)
                 {
                     score += GetRoll(frameIndex + i).PinsHit;
@@ -66,7 +66,7 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
             else
             {
                 var round = new Round(GetRoll(frameIndex), GetRoll(frameIndex + 1));
-                score += round.Sum;
+                score += round.PinsHit;
                 if (round.IsSpare)
                 {
                     for (var i = 1; i <= ExtraScoreRollsForSpare; i++)

@@ -9,13 +9,13 @@ internal record Round
         First = first;
         Second = second;
 
-        if (Sum > Game.MaxPins)
+        if (PinsHit > Game.MaxPins)
             throw new ArgumentException($"Sum of first and second throws cannot be greater than {Game.MaxPins}");
     }
 
     public Roll First { get; }
     public Roll Second { get; }
-    public int Sum => First.PinsHit + Second.PinsHit;
-    public bool IsSpare => Sum == Game.MaxPins && First.PinsHit < Game.MaxPins;
+    public int PinsHit => First.PinsHit + Second.PinsHit;
+    public bool IsSpare => PinsHit == Game.MaxPins && First.PinsHit < Game.MaxPins;
     public bool IsStrike => First.PinsHit == Game.MaxPins;
 }

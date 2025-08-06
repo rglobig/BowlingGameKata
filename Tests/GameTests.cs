@@ -28,7 +28,7 @@ public class GameTests
             .Finish()
             .Complete()
             .CalculateScore();
-        Assert.Equal(_default.Sum * 8 + (_spare.Sum + _default.First.PinsHit) + (_strike.Sum + _default.Sum), score);
+        Assert.Equal(_default.PinsHit * 8 + (_spare.PinsHit + _default.First.PinsHit) + (_strike.PinsHit + _default.PinsHit), score);
     }
 
     [Fact]
@@ -72,9 +72,10 @@ public class GameTests
     [Fact]
     public void Game_With_One_Pin_Hit_Each_Round()
     {
-        PlayAllRounds(new Round(new Roll(1), new ZeroRoll()));
+        var round = new Round(new Roll(1), new ZeroRoll());
+        PlayAllRounds(round);
         var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(Game.MaxRounds * 1, completedGame.CalculateScore());
+        Assert.Equal(Game.MaxRounds * round.PinsHit, completedGame.CalculateScore());
     }
 
     [Fact]
@@ -84,7 +85,7 @@ public class GameTests
             .PlayRound(_spare)
             .PlayRound(_default);
         var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(_spare.Sum + _default.First.PinsHit + _default.Sum, completedGame.CalculateScore());
+        Assert.Equal(_spare.PinsHit + _default.First.PinsHit + _default.PinsHit, completedGame.CalculateScore());
     }
 
     [Fact]
@@ -96,7 +97,7 @@ public class GameTests
             .PlayExtraRoll(_defaultRoll)
             .Complete()
             .CalculateScore();
-        Assert.Equal(_strike.Sum + _defaultRoll.PinsHit, score);
+        Assert.Equal(_strike.PinsHit + _defaultRoll.PinsHit, score);
     }
 
     [Fact]
@@ -106,7 +107,7 @@ public class GameTests
             .PlayRound(_strike)
             .PlayRound(_default);
         var completedGame = FinishGameAndCompleteWithoutExtraRound();
-        Assert.Equal(_strike.Sum + _default.Sum + _default.Sum, completedGame.CalculateScore());
+        Assert.Equal(_strike.PinsHit + _default.PinsHit + _default.PinsHit, completedGame.CalculateScore());
     }
 
     [Fact]
@@ -119,7 +120,7 @@ public class GameTests
             .PlayExtraRoll(_defaultRoll)
             .Complete()
             .CalculateScore();
-        Assert.Equal(_strike.Sum + _defaultRoll.PinsHit * 2, score);
+        Assert.Equal(_strike.PinsHit + _defaultRoll.PinsHit * 2, score);
     }
 
     [Fact]

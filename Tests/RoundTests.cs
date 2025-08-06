@@ -16,7 +16,7 @@ public class RoundTests
     public void Sum_Of_Round_Is_Correct(int first, int second)
     {
         var round = new Round(new Roll(first), new Roll(second));
-        Assert.Equal(first + second, round.Sum);
+        Assert.Equal(first + second, round.PinsHit);
     }
 
     [Fact]
