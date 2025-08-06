@@ -4,8 +4,8 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
 {
     public const int MaxRounds = 10;
     public const int MaxPins = 10;
-    private const int MaxSpareExtraRolls = 1;
-    private const int MaxStrikeExtraRolls = 2;
+    private const int ExtraScoreRollsForSpare = 1;
+    private const int ExtraScoreRollsForStrike = 2;
 
     private readonly List<Round> _rounds = [];
     private readonly List<Roll> _extraRolls = [];
@@ -41,61 +41,63 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
     public int CalculateScore()
     {
         var score = 0;
-        for (var i = 0; i < _rounds.Count - 2; i++)
+        List<Roll> rolls = [];
+        foreach (var round in _rounds)
         {
-            score += _rounds[i].Sum;
+            rolls.Add(round.First);
+            if (!round.IsStrike) rolls.Add(round.Second);
+        }
 
-            if (_rounds[i].IsStrike)
+        rolls.AddRange(_extraRolls);
+
+        var frameIndex = 0;
+        for (var frame = 0; frame < MaxRounds; frame++)
+        {
+            if (new Round(GetRoll(frameIndex), new ZeroRoll()).IsStrike)
             {
-                score += GetRound(i + 1).First.PinsHit;
-                score += GetRound(i + 1).IsStrike ? GetRound(i + 2).First.PinsHit : GetRound(i + 1).Second.PinsHit;
-            }
+                score += new StrikeRound().Sum;
+                for (var i = 1; i <= ExtraScoreRollsForStrike; i++)
+                {
+                    score += GetRoll(frameIndex + i).PinsHit;
+                }
 
-            if (_rounds[i].IsSpare)
+                frameIndex++;
+            }
+            else
             {
-                score += GetRound(i + 1).First.PinsHit;
+                var round = new Round(GetRoll(frameIndex), GetRoll(frameIndex + 1));
+                score += round.Sum;
+                if (round.IsSpare)
+                {
+                    for (var i = 1; i <= ExtraScoreRollsForSpare; i++)
+                    {
+                        score += GetRoll(frameIndex + 1 + i).PinsHit;
+                    }
+                }
+
+                frameIndex += 2;
             }
-        }
-
-        var beforeRound = GetRound(^2);
-        score += beforeRound.Sum;
-        if (beforeRound.IsSpare)
-        {
-            score += GetLastRound().First.PinsHit;
-        }
-
-        if (beforeRound.IsStrike)
-        {
-            score += GetLastRound().First.PinsHit;
-            score += GetLastRound().IsStrike ? _extraRolls.First().PinsHit : GetLastRound().Second.PinsHit;
-        }
-
-        var lastRound = GetLastRound();
-
-        score += lastRound.Sum;
-
-        if (lastRound.IsStrike)
-        {
-            score += _extraRolls.Take(MaxStrikeExtraRolls).Sum(roll => roll.PinsHit);
-        }
-
-        if (lastRound.IsSpare)
-        {
-            score += _extraRolls.Take(MaxSpareExtraRolls).Sum(roll => roll.PinsHit);
         }
 
         return score;
+
+        Roll GetRoll(int i)
+        {
+            if (i < 0 || i >= rolls.Count)
+                return new ZeroRoll();
+            return rolls[i];
+        }
     }
 
     public IExtraRoundGame PlayExtraRoll(Roll roll)
     {
         var lastRound = GetLastRound();
 
-        if (lastRound.IsStrike && _extraRolls.Count < MaxStrikeExtraRolls)
+        if (lastRound.IsStrike && _extraRolls.Count < ExtraScoreRollsForStrike)
         {
             _extraRolls.Add(roll);
         }
-        else if (lastRound.IsSpare && _extraRolls.Count < MaxSpareExtraRolls)
+        else if (lastRound.IsSpare && _extraRolls.Count < ExtraScoreRollsForSpare)
         {
             _extraRolls.Add(roll);
         }
@@ -111,12 +113,12 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
     {
         var lastRound = GetLastRound();
 
-        if (lastRound.IsStrike && _extraRolls.Count < MaxStrikeExtraRolls)
+        if (lastRound.IsStrike && _extraRolls.Count < ExtraScoreRollsForStrike)
         {
             throw new GameIsNotOverException();
         }
 
-        if (lastRound.IsSpare && _extraRolls.Count < MaxSpareExtraRolls)
+        if (lastRound.IsSpare && _extraRolls.Count < ExtraScoreRollsForSpare)
         {
             throw new GameIsNotOverException();
         }
@@ -125,11 +127,4 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
     }
 
     private Round GetLastRound() => _rounds[^1];
-
-    private Round GetRound(Index index)
-    {
-        if (index.Value < 0 || index.Value >= _rounds.Count)
-            return new Round(new Roll(0), new Roll(0));
-        return _rounds[index];
-    }
 }
