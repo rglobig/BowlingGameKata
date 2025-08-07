@@ -40,30 +40,21 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
 
     public IExtraRoundGame PlayExtraRoll(Roll roll)
     {
-        if (LastRoundIsStrikeAndExtraRollsAreNotFull())
+        // ReSharper disable once InvertIf
+        if (LastRoundIsStrikeAndExtraRollsAreNotFull() || 
+            LastRoundIsSpareAndExtraRollsAreNotFull())
         {
             _extraRolls.Add(roll);
-        }
-        else if (LastRoundIsSpareAndExtraRollsAreNotFull())
-        {
-            _extraRolls.Add(roll);
-        }
-        else
-        {
-            throw new GameIsOverException();
+            return this;
         }
 
-        return this;
+        throw new GameIsOverException();
     }
 
     public ICompletedGame Complete()
     {
-        if (LastRoundIsStrikeAndExtraRollsAreNotFull())
-        {
-            throw new GameIsNotOverException();
-        }
-
-        if (LastRoundIsSpareAndExtraRollsAreNotFull())
+        if (LastRoundIsStrikeAndExtraRollsAreNotFull() || 
+            LastRoundIsSpareAndExtraRollsAreNotFull())
         {
             throw new GameIsNotOverException();
         }

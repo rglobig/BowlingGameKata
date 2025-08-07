@@ -10,8 +10,9 @@ internal record Roll
 
     public Roll(int pinsHit)
     {
-        PinsHit = pinsHit;
         ArgumentOutOfRangeException.ThrowIfNegative(pinsHit, nameof(pinsHit));
         ArgumentOutOfRangeException.ThrowIfGreaterThan(pinsHit, Game.MaxPins, nameof(pinsHit));
+        
+        PinsHit = pinsHit;
     }
 }
