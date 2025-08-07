@@ -64,17 +64,17 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
 
     public int CalculateScore()
     {
-        var score = 0;
         List<Roll> rolls = [];
         foreach (var round in _rounds)
         {
             rolls.Add(round.First);
             if (!round.IsStrike) rolls.Add(round.Second);
         }
-
         rolls.AddRange(_extraRolls);
 
+        var score = 0;
         var frameIndex = 0;
+        
         for (var frame = 0; frame < MaxRounds; frame++)
         {
             if (new Round(rolls[frameIndex], new ZeroRoll()).IsStrike)
@@ -91,6 +91,7 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
             {
                 var round = new Round(rolls[frameIndex], rolls[frameIndex + 1]);
                 score += round.PinsHit;
+                
                 if (round.IsSpare)
                 {
                     for (var i = 1; i <= ExtraScoreRollsForSpare; i++)
