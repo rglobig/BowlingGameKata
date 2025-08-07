@@ -41,7 +41,7 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
     public IExtraRoundGame PlayExtraRoll(Roll roll)
     {
         // ReSharper disable once InvertIf
-        if (LastRoundIsStrikeAndExtraRollsAreNotFull() || 
+        if (LastRoundIsStrikeAndExtraRollsAreNotFull() ||
             LastRoundIsSpareAndExtraRollsAreNotFull())
         {
             _extraRolls.Add(roll);
@@ -53,7 +53,7 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
 
     public ICompletedGame Complete()
     {
-        if (LastRoundIsStrikeAndExtraRollsAreNotFull() || 
+        if (LastRoundIsStrikeAndExtraRollsAreNotFull() ||
             LastRoundIsSpareAndExtraRollsAreNotFull())
         {
             throw new GameIsNotOverException();
@@ -70,11 +70,12 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
             rolls.Add(round.First);
             if (!round.IsStrike) rolls.Add(round.Second);
         }
+
         rolls.AddRange(_extraRolls);
 
         var score = 0;
         var frameIndex = 0;
-        
+
         for (var frame = 0; frame < MaxRounds; frame++)
         {
             if (new Round(rolls[frameIndex], new ZeroRoll()).IsStrike)
@@ -91,7 +92,7 @@ internal class Game : IPlayableGame, IExtraRoundGame, ICompletedGame
             {
                 var round = new Round(rolls[frameIndex], rolls[frameIndex + 1]);
                 score += round.PinsHit;
-                
+
                 if (round.IsSpare)
                 {
                     for (var i = 1; i <= ExtraScoreRollsForSpare; i++)

@@ -12,7 +12,7 @@ internal record Roll
     {
         ArgumentOutOfRangeException.ThrowIfNegative(pinsHit, nameof(pinsHit));
         ArgumentOutOfRangeException.ThrowIfGreaterThan(pinsHit, Game.MaxPins, nameof(pinsHit));
-        
+
         PinsHit = pinsHit;
     }
 }
