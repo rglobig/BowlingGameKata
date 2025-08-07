@@ -25,14 +25,17 @@ public class GameTests
             .PlayRound(_strike)
             .PlayRound(_default)
             .PlayRound(_default)
-            .PlayRound(_default)
+            .PlayRound(_strike)
             .Finish()
+            .PlayExtraRoll(_defaultRoll)
+            .PlayExtraRoll(_defaultRoll)
             .Complete()
             .CalculateScore();
         Assert.Equal(
-            _default.PinsHit * 8 +
+            _default.PinsHit * 7 +
             (_spare.PinsHit + _default.First.PinsHit) +
-            (_strike.PinsHit + _default.PinsHit),
+            (_strike.PinsHit + _default.PinsHit) +
+            (_strike.PinsHit + _defaultRoll.PinsHit + _defaultRoll.PinsHit),
             score);
     }
 
