@@ -31,6 +31,7 @@ public class GameTests
             .PlayExtraRoll(_defaultRoll)
             .Complete()
             .CalculateScore();
+        
         Assert.Equal(
             _default.PinsHit * 7 +
             (_spare.PinsHit + _default.First.PinsHit) +
@@ -81,6 +82,7 @@ public class GameTests
             .Finish()
             .Complete()
             .CalculateScore();
+        
         Assert.Equal(0, score);
     }
 
@@ -92,6 +94,7 @@ public class GameTests
             .Finish()
             .Complete()
             .CalculateScore();
+        
         Assert.Equal(Game.MaxRounds * round.PinsHit, score);
     }
 
@@ -104,6 +107,7 @@ public class GameTests
             .Finish()
             .Complete()
             .CalculateScore();
+        
         Assert.Equal(_spare.PinsHit + _default.First.PinsHit * Game.ExtraScoreRollsForSpare + _default.PinsHit, score);
     }
 
@@ -120,6 +124,7 @@ public class GameTests
 
         var score = extraRoundGame.Complete()
             .CalculateScore();
+        
         Assert.Equal(_strike.PinsHit + _defaultRoll.PinsHit * Game.ExtraScoreRollsForSpare, score);
     }
     
@@ -162,6 +167,7 @@ public class GameTests
             .Finish()
             .Complete()
             .CalculateScore();
+        
         Assert.Equal(_strike.PinsHit + _default.PinsHit * Game.ExtraScoreRollsForStrike, score);
     }
 
@@ -189,6 +195,7 @@ public class GameTests
         var extraRoundGame = PlayAllRoundsButLeaveLastRound(_zero)
             .PlayRound(_default)
             .Finish();
+        
         Assert.Throws<GameIsOverException>(() => extraRoundGame.PlayExtraRoll(_defaultRoll));
     }
 
